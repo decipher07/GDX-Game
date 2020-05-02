@@ -27,6 +27,7 @@ public class MyGdxGame extends ApplicationAdapter {
 	BitmapFont font ;
 
 	int score =  0 ;
+	int gameState = 0 ;
 
 	Random random ;
 
@@ -92,54 +93,84 @@ public class MyGdxGame extends ApplicationAdapter {
 		batch.begin();
 		batch.draw(background, 0, 0 , Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
-		// Coins //
-		if (coinCount < 100){
-		    coinCount++ ;
-        } else {
-		    coinCount = 0 ;
-		    makeCoin();
-        }
+		if (gameState == 1){
+			// Game Is Live
 
-		coinRectangles.clear();
-		for (int i = 0 ; i < coinXs.size() ; i++ ){
-		    batch.draw(coin, coinXs.get(i) , coinYs.get(i));
-		    coinXs.set(i , coinXs.get(i) - 4 );
-        	coinRectangles.add(new Rectangle(coinXs.get(i), coinYs.get(i), coin.getWidth(), coin.getHeight()));
-		}
-
-		// Bombs //
-		if (bombCount < 100){
-			bombCount++ ;
-		} else {
-			bombCount = 0 ;
-			makeBomb();
-		}
-		coinRectangles.clear();
-		for (int i = 0 ; i < bombsXs.size() ; i++ ){
-			batch.draw(bomb, bombsXs.get(i) , bombsYs.get(i));
-			bombsXs.set(i , bombsXs.get(i) - 8);
-			bombRectangles.add(new Rectangle(bombsXs.get(i), bombsYs.get(i), bomb.getWidth(), bomb.getHeight()));
-		}
-
-		if (Gdx.input.justTouched()){
-			velocity -= 10 ;
-		}
-
-		if (pause < 20){
-			pause++;
-		} else {
-			if (manState < 3) {
-				manState++;
+			// Coins //
+			if (coinCount < 100){
+				coinCount++ ;
 			} else {
-				manState = 0;
+				coinCount = 0 ;
+				makeCoin();
+			}
+
+			coinRectangles.clear();
+			for (int i = 0 ; i < coinXs.size() ; i++ ){
+				batch.draw(coin, coinXs.get(i) , coinYs.get(i));
+				coinXs.set(i , coinXs.get(i) - 4 );
+				coinRectangles.add(new Rectangle(coinXs.get(i), coinYs.get(i), coin.getWidth(), coin.getHeight()));
+			}
+
+			// Bombs //
+			if (bombCount < 100){
+				bombCount++ ;
+			} else {
+				bombCount = 0 ;
+				makeBomb();
+			}
+			coinRectangles.clear();
+			for (int i = 0 ; i < bombsXs.size() ; i++ ){
+				batch.draw(bomb, bombsXs.get(i) , bombsYs.get(i));
+				bombsXs.set(i , bombsXs.get(i) - 8);
+				bombRectangles.add(new Rectangle(bombsXs.get(i), bombsYs.get(i), bomb.getWidth(), bomb.getHeight()));
+			}
+
+			if (Gdx.input.justTouched()){
+				velocity -= 10 ;
+			}
+
+			if (pause < 20){
+				pause++;
+			} else {
+				if (manState < 3) {
+					manState++;
+				} else {
+					manState = 0;
+				}
+			}
+
+			velocity += gravity;
+			manY -= velocity;
+
+			if (manY <= 0)
+				manY = 0 ;
+
+
+		} else if (gameState == 0){
+			// Waiting to Start
+			if (Gdx.input.justTouched()){
+				gameState = 1 ;
+			}
+		} else {
+			// Game Over
+			if (Gdx.input.justTouched()){
+				gameState = 1 ;
+				manY = Gdx.graphics.getHeight() / 2 ;
+				score = 0 ;
+				velocity = 0 ;
+				coinXs.clear();
+				coinYs.clear();
+				coinRectangles.clear();
+				coinCount = 0;
+
+				bombsXs.clear();
+				bombsYs.clear();
+				bombRectangles.clear();
+				bombCount = 0;
 			}
 		}
 
-		velocity += gravity;
-		manY -= velocity;
 
-		if (manY <= 0)
-			manY = 0 ;
 
 		batch.draw(man[manState], Gdx.graphics.getWidth()/2 - man[manState].getWidth()/2, manY );
 
@@ -161,6 +192,7 @@ public class MyGdxGame extends ApplicationAdapter {
 		for (int i = 0 ; i < bombRectangles.size(); i++){
 			if (Intersector.overlaps(manRectangle, bombRectangles.get(i))){
 				Gdx.app.log("Bomb!", "Collision");
+				gameState = 2 ;
 			}
 		}
 
