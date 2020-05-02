@@ -2,8 +2,10 @@ package com.mygdx.game;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Rectangle;
@@ -21,6 +23,10 @@ public class MyGdxGame extends ApplicationAdapter {
 	float gravity = 0.5f ;
 	float velocity = 0 ;
 	Rectangle manRectangle ;
+
+	BitmapFont font ;
+
+	int score =  0 ;
 
 	Random random ;
 
@@ -59,6 +65,9 @@ public class MyGdxGame extends ApplicationAdapter {
 
 	    random = new Random();
 
+	    font = new BitmapFont();
+	    font.setColor(Color.WHITE);
+	    font.getData().setScale(10);
 
 	}
 
@@ -138,7 +147,13 @@ public class MyGdxGame extends ApplicationAdapter {
 
 		for (int i = 0 ; i < coinRectangles.size(); i++){
 			if (Intersector.overlaps(manRectangle, coinRectangles.get(i))){
-				Gdx.app.log("Coin!", "Collision");
+
+			    score++;
+
+			    coinRectangles.remove(i);
+			    coinXs.remove(i);
+			    coinYs.remove(i);
+			    break ;
 			}
 		}
 
@@ -148,6 +163,8 @@ public class MyGdxGame extends ApplicationAdapter {
 				Gdx.app.log("Bomb!", "Collision");
 			}
 		}
+
+		font.draw(batch, String.valueOf(score), 100, 200);
 
 		batch.end();
 	}
